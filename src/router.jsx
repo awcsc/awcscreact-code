@@ -43,6 +43,8 @@ import SetConvenors from "./app/pages/SetConvenors";
 import Signup from "./app/pages/Signup";
 import UpdateUP from "./app/pages/UpdateUP";
 import VerifyLogin from "./app/pages/VerifyLogin";
+import UserLogin from "./app/pages/UserLogin";
+import UpdateMobile from "./app/pages/UpdateMobile";
 
 export const router = createHashRouter([
   {
@@ -206,8 +208,16 @@ export const router = createHashRouter([
         element: <UpdateUP />,
       },
       {
+        path: "UpdateMobile",
+        element: <UpdateMobile />,
+      },
+      {
         path: "VerifyLogin",
         element: <VerifyLogin />,
+      },
+      {
+        path: "UserLogin",
+        element: <UserLogin />,
       },
     ],
   },

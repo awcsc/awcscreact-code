@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 import DataTable from "react-data-table-component";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -14,13 +12,12 @@ import {
 } from "firebase/firestore";
 import { firestore } from "../../context/FirbaseContext";
 import { toast } from "react-toastify";
-import bcrypt from "bcryptjs";
 import Loader from "../../components/Loader";
 import { decryptObjData, getCookie } from "../../modules/encryption";
-import { baseUrl, gpEngNames } from "../../modules/constants";
+import { gpEngNames } from "../../modules/constants";
 import { useGlobalContext } from "../../context/Store";
-import axios from "axios";
 import { createDownloadLink } from "../../modules/calculatefunctions";
+import { useNavigate } from "react-router-dom";
 const AllTeachers = () => {
   const { teachersState, setTeachersState, schoolState } = useGlobalContext();
   const navigate = useNavigate();
@@ -60,7 +57,7 @@ const AllTeachers = () => {
     circle: "",
     hoi: "",
     udise: "",
-    spregistered: "",
+    disabled: "",
     rank: "",
     phone: "",
     empid: "",
@@ -79,7 +76,7 @@ const AllTeachers = () => {
     circle: "",
     hoi: "",
     udise: "",
-    spregistered: "",
+    disabled: "",
     rank: "",
     phone: "",
     empid: "",
@@ -166,64 +163,6 @@ const AllTeachers = () => {
       center: +true,
       omit: teacherdetails.circle !== "admin",
     },
-
-    {
-      name: "Create User",
-      cell: (row) =>
-        !row.registered ? (
-          <button
-            type="button"
-            className="btn btn-success"
-            onClick={() => {
-              // eslint-disable-next-line
-              let message = confirm(
-                `Are You Sure To Create User Account of ${
-                  row.tname
-                } with username Employee ID in LowerCase i.e. ${row.empid.toLowerCase()} and Password PAN in LowerCase i.e. ${row.pan.toLowerCase()}`
-              );
-              message
-                ? createUser(row)
-                : toast.success(`Account Not Created`, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                  });
-            }}
-          >
-            Create User
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="btn  btn-warning"
-            onClick={() => {
-              // eslint-disable-next-line
-              let message = confirm(
-                `Are You Sure To Reset Password of ${row.tname}? `
-              );
-              message
-                ? resetPassword(row)
-                : toast.error("User Password Not Resetted!", {
-                    position: "top-right",
-                    autoClose: 1500,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                  });
-            }}
-          >
-            Reset Password
-          </button>
-        ),
-    },
   ];
 
   const updateTeacher = async () => {
@@ -246,117 +185,10 @@ const AllTeachers = () => {
     setLoader(false);
   };
 
-  const createUser = async (el) => {
-    setLoader(true);
-    const url = `${baseUrl}/api/adduserteachers`;
-    const entry = {
-      teachersID: el?.id,
-      tname: el?.tname,
-      school: el?.school,
-      desig: el?.desig,
-      pan: el?.pan,
-      udise: el?.udise,
-      circle: el?.circle,
-      empid: el?.empid,
-      convenor: el?.convenor,
-      gpAssistant: el?.gpAssistant,
-      gp: el?.gp,
-      email: el?.email,
-      phone: el?.phone,
-      id: el?.id,
-      username: el.empid.toLowerCase(),
-      password: bcrypt.hashSync(el?.pan?.toLowerCase(), 10),
-      createdAt: Date.now(),
-      disabled: false,
-    };
-    try {
-      const response = await axios.post(url, entry);
-
-      if (response.data.success) {
-        try {
-          const docRef = doc(firestore, "teachers", el.id);
-          await updateDoc(docRef, {
-            spregistered: true,
-          });
-          await setDoc(doc(firestore, "sportsUsers", el.id), entry)
-            .then(() => {
-              el.registered = true;
-              let x = teachersState.filter((item) => item.id !== el.id);
-              x = [...x, el].sort((a, b) => {
-                if (a?.school < b?.school) {
-                  return -1;
-                }
-                if (a?.school > b?.school) {
-                  return 1;
-                }
-                return a?.rank - b?.rank;
-              });
-              setTeachersState(x);
-              setLoader(false);
-              toast.success(
-                `Registered Successfully with username Employee ID in LowerCase i.e. ${el.empid.toLowerCase()} and Password PAN in LowerCase i.e. ${el.pan.toLowerCase()}`,
-                {
-                  position: "top-right",
-                  autoClose: 2000,
-                  hideProgressBar: false,
-                  closeOnClick: true,
-                  pauseOnHover: true,
-                  draggable: true,
-                  progress: undefined,
-                  theme: "light",
-                }
-              );
-            })
-            .catch((e) => {
-              toast.error("Failed to Register User Account!");
-              console.log(e);
-            });
-        } catch (error) {
-          console.log(error);
-          toast.error("Failed to Register User Account!");
-        }
-      } else {
-        toast.error("Failed to Register User Account!");
-        console.log(response.data);
-      }
-    } catch (e) {
-      toast.error("Failed to Create User Account!");
-      console.log(e);
-    }
-  };
-
-  const resetPassword = async (user) => {
-    setLoader(true);
-    const password = bcrypt.hashSync(user.pan.toLowerCase(), 10);
-    const docRef = doc(firestore, "sportsUsers", user.id);
-    await updateDoc(docRef, {
-      password,
-    })
-      .then(() => {
-        setLoader(false);
-        toast.success(
-          `Congrats! User Password Reset to PAN in Lower Case i.e. ${user.pan.toLowerCase()} !`,
-          {
-            position: "top-right",
-            autoClose: 1500,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          }
-        );
-      })
-      .catch((e) => {
-        toast.error("Failed! User Password Reset Failed!");
-        console.log(e);
-      });
-  };
   useEffect(() => {
     if (!details) {
       if (teacherdetails.circle !== "admin") {
-        navigate("/logout");
+        navigate("/Logout");
       }
     }
     // eslint-disable-next-line
@@ -794,22 +626,22 @@ const AllTeachers = () => {
                     </div>
                     <div className="mb-3">
                       <label htmlFor="" className="form-label">
-                        Is Registered
+                        Account Status
                       </label>
                       <select
                         className="form-select form-select-sm mb-3"
                         aria-label=".form-select-lg example"
-                        value={inputField?.spregistered}
+                        value={inputField?.disabled}
                         onChange={(e) => {
                           setInputField({
                             ...inputField,
-                            spregistered: e.target.value,
+                            disabled: e.target.value,
                           });
                         }}
                       >
-                        <option value="">Select Registration Status</option>
-                        <option value={true}>Yes</option>
-                        <option value={false}>No</option>
+                        <option value="">Select Status</option>
+                        <option value={true}>Disable</option>
+                        <option value={false}>Enable</option>
                       </select>
                     </div>
                   </div>

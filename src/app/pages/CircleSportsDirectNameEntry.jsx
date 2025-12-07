@@ -18,7 +18,6 @@ import {
   BUTTONCOLORS,
   events,
   gpEngNames,
-  gpNames,
   maxdob,
   mindob,
   StdClass,
@@ -230,6 +229,7 @@ export default function CircleSportsDirectNameEntry() {
         (el) => el?.gp === teacherdetails.gp
       )
     );
+    // await axios.post("/api/addallGPFirsts", upLoadedResult);
     await setDoc(
       doc(firestore, "allGPFirsts", inputField.id),
       upLoadedResult
@@ -411,99 +411,6 @@ export default function CircleSportsDirectNameEntry() {
     }
   };
 
-  const updateAssistantData = async () => {
-    setLoader(true);
-    let all = circleAssistantState;
-    let circleAssistantsUpdateNteacherUpdate = allCircleAssistants
-      .filter((el) => el?.gp === teacherdetails.gp)
-      .map(async (el) => {
-        let x = teachersState.filter((item) => item.id === el?.id)[0];
-        x.circleAssistant = "taw";
-        let y = teachersState.filter((item) => item.id !== el?.id);
-        y = [...y, x];
-        setTeachersState(y);
-        await updateDoc(doc(firestore, "teachers", el?.id), {
-          circleAssistant: "taw",
-        })
-          .then(async () => {
-            all = all.pop((item) => item.id === el?.id);
-            await deleteDoc(doc(firestore, "allCircleAssistants", el?.id));
-            try {
-              await updateDoc(doc(firestore, "sportsUsers", el?.id), {
-                circleAssistant: "taw",
-              });
-            } catch (e) {
-              console.log(e);
-            }
-          })
-          .catch((e) => console.log(e));
-      });
-    await Promise.all(circleAssistantsUpdateNteacherUpdate).then(async () => {
-      let createCircleAssistantNupdateTeacherData = assistants.map(
-        async (el, ind) =>
-          await setDoc(doc(firestore, "allCircleAssistants", el?.id), el).then(
-            async () => {
-              let x = teachersState.filter((item) => item.id === el?.id)[0];
-              x.circleAssistant = "admin";
-              let y = teachersState.filter((item) => item.id !== el?.id);
-              y = [...y, x];
-              setTeachersState(y);
-              all = [...all, x];
-              const docRef = doc(firestore, "teachers", el?.id);
-              await updateDoc(docRef, {
-                circleAssistant: "admin",
-              }).then(async () => {
-                try {
-                  await updateDoc(doc(firestore, "sportsUsers", el?.id), {
-                    circleAssistant: "admin",
-                  });
-                } catch (e) {
-                  console.log(e);
-                }
-              });
-            }
-          )
-      );
-      await Promise.all(createCircleAssistantNupdateTeacherData).then(
-        async () => {
-          setCircleAssistantState(all);
-          setLoader(false);
-          toast.success("All GP Assistants Created");
-          setAssistants([]);
-        }
-      );
-    });
-  };
-
-  const removeAssistant = async (el) => {
-    setLoader(true);
-    let x = teachersState.filter((item) => item.id === el?.id)[0];
-    x.circleAssistant = "taw";
-    let y = teachersState.filter((item) => item.id !== el?.id);
-    y = [...y, x];
-    setTeachersState(y);
-    setCircleAssistantState(
-      circleAssistantState.filter((item) => item?.id !== el?.id)
-    );
-    await updateDoc(doc(firestore, "teachers", el?.id), {
-      circleAssistant: "taw",
-    })
-      .then(async () => {
-        await deleteDoc(doc(firestore, "allCircleAssistants", el?.id));
-        try {
-          await updateDoc(doc(firestore, "sportsUsers", el?.id), {
-            circleAssistant: "taw",
-          }).then(() => {
-            setLoader(false);
-            toast.success("Assistant Removed");
-          });
-        } catch (e) {
-          setLoader(false);
-          toast.success("Assistant Removed");
-        }
-      })
-      .catch((e) => console.log(e));
-  };
   const columns = [
     {
       name: "Sl",

@@ -12,13 +12,12 @@ import {
 } from "firebase/firestore";
 import { firestore } from "../../context/FirbaseContext";
 import { useGlobalContext } from "../../context/Store";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import Loader from "../../components/Loader";
 import { decryptObjData, getCookie } from "../../modules/encryption";
 import {
   createDownloadLink,
   filterArrayExtraItems,
-  filterArraySameItems,
   removeDuplicates,
 } from "../../modules/calculatefunctions";
 const SetConvenors = () => {
@@ -40,14 +39,6 @@ const SetConvenors = () => {
 
   let details = getCookie("tid");
   let schdetails = getCookie("schid");
-  // useEffect(() => {
-  //   if (!details) {
-  //     if (!schdetails) {
-  //       navigate("/logout");
-  //     }
-  //   }
-  //   // eslint-disable-next-line
-  // }, []);
   if (details) {
     teacherdetails = decryptObjData("tid");
   }
@@ -109,100 +100,40 @@ const SetConvenors = () => {
   };
 
   const delConvenor = async () => {
-    data?.map(async (el) => {
+    const flush = data?.map(async (el) => {
       setLoader(true);
       await updateTeachersState(el?.id, "taw");
       await updateDoc(doc(firestore, "teachers", el?.id), {
         convenor: "taw",
-      })
-        .then(async () => {
-          setLoader(false);
-        })
-        .catch((e) => console.log(e));
-    });
-    const q1 = query(collection(firestore, "sportsUsers"));
-    const querySnapshot1 = await getDocs(q1);
-    const data1 = querySnapshot1.docs.map((doc) => ({
-      // doc.data() is never undefined for query doc snapshots
-      ...doc.data(),
-      // id: doc.id,
-    }));
-    let allIds = data1.map((doc) => doc.id);
-    let delConvenorIds = data?.map((convenor) => convenor.id);
-    let delUserExists = filterArraySameItems(delConvenorIds, allIds);
-    let flush = delUserExists.map(async (id) => {
-      await updateDoc(doc(firestore, "sportsUsers", id), {
-        convenor: "taw",
       });
     });
+
     await Promise.all(flush).then(() => {
-      toast.success("All Convenors Deleted Successfully");
+      showToast("success", "All Convenors Deleted Successfully");
       setLoader(false);
-      // getAllConvenors();
       delAllConvenorsState();
     });
   };
 
   const updateConvenorData = async () => {
     setLoader(true);
-    const q1 = query(collection(firestore, "sportsUsers"));
-    const querySnapshot1 = await getDocs(q1);
-    const data1 = querySnapshot1.docs.map((doc) => ({
-      // doc.data() is never undefined for query doc snapshots
-      ...doc.data(),
-      // id: doc.id,
-    }));
-    let allIds = data1.map((doc) => doc.id);
     let newConvenors = filterArrayExtraItems(allConvenors, data);
     let delConvenors = filterArrayExtraItems(data, allConvenors);
-
-    let newConvenorIds = newConvenors.map((convenor) => convenor.id);
-    let delConvenorIds = delConvenors.map((convenor) => convenor.id);
-
-    let newUserExists = filterArraySameItems(newConvenorIds, allIds);
-    let delUserExists = filterArraySameItems(delConvenorIds, allIds);
-
-    if (newUserExists.length > 0) {
-      newUserExists.map(
-        async (id) =>
-          await updateDoc(doc(firestore, "sportsUsers", id), {
-            convenor: "admin",
-          })
-      );
-    }
-    if (delUserExists.length > 0) {
-      delUserExists.map(
-        async (id) =>
-          await updateDoc(doc(firestore, "sportsUsers", id), {
-            convenor: "taw",
-          })
-      );
-    }
-
     let delConvenorUpdate = delConvenors.map(async (el) => {
       await updateTeachersState(el?.id, "taw");
       await updateDoc(doc(firestore, "teachers", el?.id), {
         convenor: "taw",
-      })
-        .then(async () => {
-          setLoader(false);
-        })
-        .catch((e) => {
-          console.log(e);
-          setLoader(false);
-        });
+        gpAssistant: "taw",
+      });
     });
     await Promise.all(delConvenorUpdate).then(async () => {
       let newConvenorAdd = newConvenors.map(async (el) => {
-        el.convenor = "admin";
-        el.gpAssistant = "admin";
-        async () => {
-          await updateTeachersState(el?.id, "admin");
-          const docRef = doc(firestore, "teachers", el?.id);
-          await updateDoc(docRef, {
-            convenor: "admin",
-          });
-        };
+        await updateTeachersState(el?.id, "admin");
+        const docRef = doc(firestore, "teachers", el?.id);
+        await updateDoc(docRef, {
+          convenor: "admin",
+          gpAssistant: "admin",
+        });
       });
 
       await Promise.all(newConvenorAdd).then(async () => {
@@ -313,49 +244,26 @@ const SetConvenors = () => {
 
   const deleteConvenor = async (id) => {
     setLoader(true);
+    const filteredConvenorState = convenorsState
+      .filter((convenor) => convenor.id !== id)
+      .sort((a, b) => a?.gp?.localeCompare(b?.gp));
     await updateTeachersState(id, "taw");
     await updateDoc(doc(firestore, "teachers", id), {
       convenor: "taw",
+      gpAssistant: "taw",
     })
       .then(async () => {
-        try {
-          await updateDoc(doc(firestore, "sportsUsers", id), {
-            convenor: "taw",
-          }).then(() => {
-            setConvenorsState(
-              convenorsState.filter((convenor) => convenor.id !== id)
-            );
-            setData(convenorsState.filter((convenor) => convenor.id !== id));
-            setLoader(false);
-            toast.success("GP Convenor Deleted", {
-              position: "top-right",
-              autoClose: 1000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-            });
-          });
-        } catch (e) {
-          console.log(e);
-          // teacherData();
-          // getAllConvenors();
-          setLoader(false);
-          toast.success("GP Convenor Deleted", {
-            position: "top-right",
-            autoClose: 1000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        }
+        await waitForSomeTime();
+        setConvenorsState(filteredConvenorState);
+        setData(filteredConvenorState);
+        setLoader(false);
+        toast.success("GP Convenor Deleted");
       })
-      .catch((e) => console.log(e));
+      .catch((e) => {
+        console.log(e);
+        setLoader(false);
+        toast.error("GP Convenor Deletation Failed");
+      });
   };
 
   const columns = useMemo(
