@@ -20,15 +20,15 @@ export default function UpdateMobile() {
   const navigate = useNavigate();
   let userdetails;
   const [loader, setLoader] = useState(false);
-  const user = state.USER;
-  const [adminType, setAdminType] = useState(user.type);
+  const user = state.USER || {};
+  const [adminType, setAdminType] = useState(user?.type);
   const [isTeacher, setIsTeacher] = useState(true);
   const [id, setId] = useState("");
 
   const [mobileOTPSent, setMobileOTPSent] = useState(false);
   const [mobileOTP, setMobileOTP] = useState("");
   const [showRetryBtn, setShowRetryBtn] = useState(false);
-  const [phone, setPhone] = useState(user.phone);
+  const [phone, setPhone] = useState(user?.phone || "");
   const [reqId, setReqId] = useState("");
   const checkUser = () => {
     let details = getCookie("tid");
@@ -88,7 +88,6 @@ export default function UpdateMobile() {
   };
   const verifyMobileOTP = async (e) => {
     e.preventDefault();
-
     if (mobileOTP !== "" && mobileOTP.toString().length === 6) {
       setLoader(true);
       try {
@@ -151,7 +150,8 @@ export default function UpdateMobile() {
                 placeholder="Enter Mobile"
                 value={phone}
                 onChange={(e) =>
-                  e.target.value.length <= 10 && setPhone(e.target.value)
+                  e.target.value.toString().length <= 10 &&
+                  setPhone(e.target.value)
                 }
               />
             </div>
@@ -159,7 +159,9 @@ export default function UpdateMobile() {
               <button
                 type="submit"
                 className="btn btn-primary m-1"
-                disabled={phone.length !== 10 || user.phone === phone}
+                disabled={
+                  phone.toString().length !== 10 || user.phone === phone
+                }
                 onClick={changePhone}
               >
                 Change Mobile <i className="bi bi-box-arrow-in-right"></i>
@@ -186,7 +188,7 @@ export default function UpdateMobile() {
               <button
                 type="submit"
                 className="btn btn-primary m-1"
-                disabled={mobileOTP.length !== 6}
+                disabled={mobileOTP.toString().length !== 6}
                 onClick={verifyMobileOTP}
               >
                 Verify OTP <i className="bi bi-box-arrow-in-right"></i>
