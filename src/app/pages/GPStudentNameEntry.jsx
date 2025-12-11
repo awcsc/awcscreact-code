@@ -26,6 +26,7 @@ import {
 import { useGlobalContext } from "../../context/Store";
 import GPSchoolStudentList from "../../pdf/GPSchoolStudentList";
 import { useNavigate } from "react-router-dom";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 const GPStudentNameEntry = () => {
   const {
     setStateArray,
