@@ -37,7 +37,7 @@ import GpSportsDirectNameEntry from "./app/pages/GpSportsDirectNameEntry";
 import GPSportsEventWiseName from "./app/pages/GPSportsEventWiseName";
 import GPStudentNameEntry from "./app/pages/GPStudentNameEntry";
 import Login from "./app/pages/Login";
-import LogOut from "./app/pages/LogOut";
+import LogOut from "./app/pages/Logout";
 import RegUsers from "./app/pages/RegUsers";
 import SetConvenors from "./app/pages/SetConvenors";
 import Signup from "./app/pages/Signup";

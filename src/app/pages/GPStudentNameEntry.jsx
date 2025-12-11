@@ -24,6 +24,7 @@ import {
   mindob,
 } from "../../modules/constants";
 import { useGlobalContext } from "../../context/Store";
+import GPSchoolStudentList from "../../pdf/GPSchoolStudentList";
 import { useNavigate } from "react-router-dom";
 const GPStudentNameEntry = () => {
   const {
@@ -119,7 +120,7 @@ const GPStudentNameEntry = () => {
   const [resultSearch, setResultSearch] = useState("");
   const [showCircleResult, setShowCircleResult] = useState(false);
   const [gpSpDate, setGpSpDate] = useState("");
-
+  const [showDld, setShowDld] = useState(false);
   const getLockData = async () => {
     const data = gpLockState;
     setLockData(data);
@@ -828,12 +829,14 @@ const GPStudentNameEntry = () => {
         gp: teacherdetails.gp,
         school: teacherdetails.school,
         udise: teacherdetails.udise,
+        id: teacherdetails.id,
       });
     } else if (schdetails.udise !== "") {
       setTawSchoolData({
         gp: schdetails.gp,
         school: schdetails.school,
         udise: schdetails.udise,
+        id: schdetails.id,
       });
     }
 
@@ -888,7 +891,7 @@ const GPStudentNameEntry = () => {
   // }, [resultSearch]);
 
   return (
-    <div className="container text-center my-5 mx-auto">
+    <div className="container text-center my-5">
       {gpSpDate && (
         <h5 className="text-center text-primary">
           {titleCase(tawSchoolData.gp)} GP Sports Date: {gpSpDate}
@@ -933,17 +936,63 @@ const GPStudentNameEntry = () => {
         </div>
       )}
       {selectSchoolsParticipants.length > 0 && (
-        <button
-          type="button"
-          className="btn btn-info m-1 btn-sm"
-          onClick={() => {
-            setStateArray(selectSchoolsParticipants);
-            navigate(`/GPSchoolWiseStudentList`);
-          }}
-        >
-          Print List
-        </button>
+        <React.Fragment>
+          <button
+            type="button"
+            className="btn btn-info m-1 btn-sm"
+            onClick={() => {
+              setStateArray(selectSchoolsParticipants);
+              navigate(`/GPSchoolWiseStudentList`);
+            }}
+          >
+            Print List
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary m-1 btn-sm"
+            onClick={() => setShowDld(!showDld)}
+          >
+            {showDld ? "Hide Download" : "Download List"}
+          </button>
+        </React.Fragment>
       )}
+      {showDld && (
+        <div className="my-4">
+          <PDFDownloadLink
+            document={
+              <GPSchoolStudentList
+                studentData={selectSchoolsParticipants}
+                gp={tawSchoolData.gp}
+                school={tawSchoolData.school}
+                udise={tawSchoolData.udise}
+              />
+            }
+            fileName={`${tawSchoolData.school} GP Sports Student List`}
+            style={{
+              textDecoration: "none",
+              padding: "10px",
+              color: "#fff",
+              backgroundColor: "navy",
+              border: "1px solid #4a4a4a",
+              width: "40%",
+              borderRadius: 10,
+              margin: 20,
+              textAlign: "center",
+            }}
+          >
+            {({ blob, url, loading, error }) =>
+              loading ? "Loading..." : "Download Student List"
+            }
+          </PDFDownloadLink>
+          {/* <GPSchoolStudentList
+            studentData={selectSchoolsParticipants}
+            gp={tawSchoolData.gp}
+            school={tawSchoolData.school}
+            udise={tawSchoolData.udise}
+          /> */}
+        </div>
+      )}
+
       {selectSchoolsParticipants.length > 0 && (
         <button
           type="button"
@@ -1629,7 +1678,7 @@ const GPStudentNameEntry = () => {
         )
       ) : (
         gpLockData.closeDate !== undefined && (
-          <h6 className="text-center text-danger my-4">
+          <h6 suppressHydrationWarning className="text-center text-danger my-4">
             {tawSchoolData.gp} GP Sports Student Entry & Edit Closed By{" "}
             {gpLockData.entryCloseddBy} at{" "}
             {DateValueToString(gpLockData.closeDate)}

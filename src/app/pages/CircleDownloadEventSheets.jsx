@@ -46,7 +46,7 @@ export default function CircleDownloadEventSheets() {
         teacherdetails.circle !== "admin" ||
         teacherdetails.convenor !== "admin"
       ) {
-        navigate("/logout");
+        navigate("/Logout");
       }
     }
     // eslint-disable-next-line
