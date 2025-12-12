@@ -18,10 +18,8 @@ import axios from "axios";
 import { OTPWidget } from "@msg91comm/sendotp-sdk";
 import { useNavigate } from "react-router-dom";
 import { baseUrl } from "../../modules/constants";
+import { authToken, widgetId } from "../../modules/encSecret";
 const UpdateUP = () => {
-  const widgetId = "356b6c6e4d6d353835393432";
-  const authToken = "477593TDvYbKLc69149d77P1";
-
   useEffect(() => {
     OTPWidget.initializeWidget(widgetId, authToken);
   }, []);

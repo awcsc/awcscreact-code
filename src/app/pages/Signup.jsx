@@ -17,6 +17,7 @@ import { validateEmployeeID } from "../../modules/calculatefunctions";
 import { toast, ToastContainer } from "react-toastify";
 import { OTPWidget } from "@msg91comm/sendotp-sdk";
 import { useNavigate } from "react-router-dom";
+import { authToken, widgetId } from "../../modules/encSecret";
 /**
  * Client-side Signup component converted from React Native
  * Uses Bootstrap classes for styling
@@ -42,9 +43,6 @@ function Loader({ visible }) {
 }
 
 export default function Signup() {
-  const widgetId = "356b6c6e4d6d353835393432";
-  const authToken = "477593TDvYbKLc69149d77P1";
-
   useEffect(() => {
     OTPWidget.initializeWidget(widgetId, authToken);
   }, []);

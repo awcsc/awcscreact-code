@@ -7,10 +7,8 @@ import Loader from "../../components/Loader";
 import { OTPWidget } from "@msg91comm/sendotp-sdk";
 import { getDocumentByField } from "../../firebase/firestoreHelper";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { authToken, widgetId } from "../../modules/encSecret";
 export default function AlternateLogin() {
-  const widgetId = "356b6c6e4d6d353835393432";
-  const authToken = "477593TDvYbKLc69149d77P1";
-
   useEffect(() => {
     OTPWidget.initializeWidget(widgetId, authToken);
   }, []);

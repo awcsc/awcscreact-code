@@ -8,11 +8,9 @@ import Loader from "../../components/Loader";
 import { useGlobalContext } from "../../context/Store";
 import { OTPWidget } from "@msg91comm/sendotp-sdk";
 import { useNavigate } from "react-router-dom";
+import { authToken, widgetId } from "../../modules/encSecret";
 
 export default function UpdateMobile() {
-  const widgetId = "356b6c6e4d6d353835393432";
-  const authToken = "477593TDvYbKLc69149d77P1";
-
   useEffect(() => {
     OTPWidget.initializeWidget(widgetId, authToken);
   }, []);
