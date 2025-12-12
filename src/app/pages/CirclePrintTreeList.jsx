@@ -23,7 +23,7 @@ export default function CirclePrintTreeList() {
   useEffect(() => {
     if (teacherdetails.circle !== "admin") {
       if (teacherdetails.circleAssistant !== "admin") {
-        navigate("/login");
+        navigate("/Login");
       }
     }
     document.title = `Amta West Circle Sports ${new Date().getFullYear()} All Student List`;

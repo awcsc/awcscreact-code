@@ -12,7 +12,6 @@ import {
 } from "firebase/firestore";
 import { firestore } from "../../context/FirbaseContext";
 import { toast, ToastContainer } from "react-toastify";
-import bcrypt from "bcryptjs";
 import Loader from "../../components/Loader";
 import { decryptObjData, getCookie } from "../../modules/encryption";
 import {
@@ -35,13 +34,11 @@ const RegUsers = () => {
     gp: "",
     circle: "taw",
   };
-  let adminType = "";
   let details = getCookie("tid");
   let schdetails = getCookie("schid");
 
   if (details) {
     teacherdetails = decryptObjData("tid");
-    adminType = teacherdetails.type;
   }
   if (schdetails) {
     schdetails = decryptObjData("schid");
@@ -79,7 +76,6 @@ const RegUsers = () => {
     udise: generateRandomUDISE(),
     phone: "",
     teachersID: `teacher-${docID}`,
-    email: "",
     desig: "",
     gpAssistant: "taw",
     type: "Administrator",
@@ -273,21 +269,6 @@ const RegUsers = () => {
       center: +true,
     },
     {
-      name: "Username",
-      selector: (row) => row.username,
-      sortable: +true,
-      wrap: +true,
-      center: +true,
-    },
-    {
-      name: "Email",
-      selector: (row) => row.email,
-      sortable: +true,
-      wrap: +true,
-      center: +true,
-    },
-
-    {
       name: "Access",
       selector: (row) => row.circle,
       sortable: +true,
@@ -360,7 +341,6 @@ const RegUsers = () => {
       const docRef = doc(firestore, "userschools", schoolField.id);
       await updateDoc(docRef, {
         hoi: schoolField.hoi,
-        username: schoolField.username,
         phone: schoolField.phone,
       })
         .then(() => {
@@ -370,12 +350,14 @@ const RegUsers = () => {
           setShowEditSchool(false);
         })
         .catch((e) => {
+          console.log(e);
           setLoader(false);
-          toast.error("Congrats! School Details Update Failed!");
+          toast.error("School Details Update Failed!");
         });
     } catch (error) {
+      console.log(error);
       setLoader(false);
-      toast.error("Congrats! School Details Update Failed!");
+      toast.error("School Details Update Failed!");
     }
   };
   const addAdmin = async () => {
@@ -383,27 +365,11 @@ const RegUsers = () => {
       toast.error("Please Enter Admin Name");
       return;
     }
-    if (!selectedAdmin.username) {
-      toast.error("Please Enter Admin Username");
-      return;
-    }
-    if (!selectedAdmin.password) {
-      toast.error("Please Enter Admin Password");
-      return;
-    }
     if (!selectedAdmin.school) {
       toast.error("Please Enter Office Name");
       return;
     }
-    if (
-      !selectedAdmin.email ||
-      !selectedAdmin.email.match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      )
-    ) {
-      toast.error("Please Enter Valid Email");
-      return;
-    }
+
     if (!selectedAdmin.phone) {
       toast.error("Please Enter Phone Number");
       return;
@@ -417,15 +383,9 @@ const RegUsers = () => {
       const entry = {
         ...selectedAdmin,
         id: `teacher-${docID}`,
-        password:
-          type === "add"
-            ? bcrypt.hashSync(selectedAdmin.password.trim(), 10)
-            : selectedAdmin.password,
-        username: selectedAdmin.username.trim().toLowerCase(),
         tname: selectedAdmin.tname.trim().toUpperCase(),
         school: selectedAdmin.school.trim().toUpperCase(),
         gp: selectedAdmin.gp.trim(),
-        email: selectedAdmin.email.trim(),
         desig: selectedAdmin.desig.trim().toUpperCase(),
         phone: selectedAdmin.phone.trim(),
         teachersID: `teacher-${docID}`,
@@ -614,23 +574,7 @@ const RegUsers = () => {
                   }}
                 />
               </div>
-              <div className="mb-3">
-                <label htmlFor="" className="form-label">
-                  Admin Email
-                </label>
-                <input
-                  type="email"
-                  placeholder="Enter Email"
-                  className="form-control"
-                  value={selectedAdmin.email}
-                  onChange={(e) => {
-                    setSelectedAdmin({
-                      ...selectedAdmin,
-                      email: e.target.value,
-                    });
-                  }}
-                />
-              </div>
+
               <div className="mb-3">
                 <label htmlFor="" className="form-label">
                   Admin Office

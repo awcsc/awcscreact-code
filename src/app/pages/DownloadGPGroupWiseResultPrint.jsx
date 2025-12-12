@@ -27,7 +27,7 @@ const DownloadGPGroupWiseResultPrint = () => {
     if (teacherdetails.circle !== "admin") {
       if (teacherdetails.convenor !== "admin") {
         if (teacherdetails.gpAssistant !== "admin") {
-          navigate("/login");
+          navigate("/Login");
         }
       }
     }

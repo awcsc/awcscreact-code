@@ -63,7 +63,7 @@ const CircleStudentsNameEntry = () => {
   useEffect(() => {
     if (teacherdetails.circle !== "admin") {
       if (teacherdetails.circleAssistant !== "admin") {
-        navigate("/login");
+        navigate("/Login");
       }
     }
     // eslint-disable-next-line

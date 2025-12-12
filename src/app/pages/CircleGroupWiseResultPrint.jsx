@@ -28,7 +28,7 @@ const CircleGroupWiseResultPrint = () => {
   useEffect(() => {
     if (teacherdetails.circle !== "admin") {
       if (teacherdetails.circleAssistant !== "admin") {
-        navigate("/login");
+        navigate("/Login");
       }
     }
     document.title = `${circleEngName} Annual Sports ${group} Result Sheet`;

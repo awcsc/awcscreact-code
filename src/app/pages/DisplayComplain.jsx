@@ -31,7 +31,7 @@ const DisplayComplain = () => {
   }
   useEffect(() => {
     if (teacherdetails.circle !== "admin") {
-      navigate("/login");
+      navigate("/Login");
     }
     // eslint-disable-next-line
   }, []);

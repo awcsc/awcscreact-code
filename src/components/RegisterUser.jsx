@@ -117,9 +117,10 @@ const RegisterUser = ({ sata, setSignUpTrue }) => {
           const response = await axios.post(url, entry);
           const record = response.data;
           if (record.success) {
-            await setDoc(doc(firestore, "sportsUsers", docId), entry).catch(
-              (e) => console.log(e)
-            );
+            await setDoc(
+              doc(firestore, "sportsUsers", docId),
+              entry
+            ).catch((e) => console.log(e));
 
             const docRef = doc(firestore, "teachers", inputField.teachersID);
             await updateDoc(docRef, {
@@ -132,7 +133,7 @@ const RegisterUser = ({ sata, setSignUpTrue }) => {
             );
 
             setTimeout(() => {
-              navigate.push("/login");
+              navigate.push("/Login");
             }, 1500);
           } else {
             toast.error(
