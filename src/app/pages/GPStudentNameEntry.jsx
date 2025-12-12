@@ -968,7 +968,7 @@ const GPStudentNameEntry = () => {
                 udise={tawSchoolData.udise}
               />
             }
-            fileName={`${tawSchoolData.school} GP Sports Student List`}
+            fileName={`${tawSchoolData.school} GP Sports Student List.pdf`}
             style={{
               textDecoration: "none",
               padding: "10px",
