@@ -8,7 +8,7 @@ import Typed from "typed.js";
 import { decryptObjData, getCookie } from "../../modules/encryption";
 import { titleCase } from "../../modules/calculatefunctions";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 const Dashboard = () => {
   const {
@@ -310,6 +310,18 @@ const Dashboard = () => {
         </div>
       )}
       {showLoader && <Loader />}
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 };

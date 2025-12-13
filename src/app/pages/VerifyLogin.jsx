@@ -7,7 +7,7 @@ import {
   getCookie,
   setCookie,
 } from "../../modules/encryption";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import Loader from "../../components/Loader";
 import { OTPWidget } from "@msg91comm/sendotp-sdk";
 import { titleCase } from "../../modules/calculatefunctions";
@@ -221,6 +221,18 @@ export default function VerifyLogin() {
           </div>
         </div>
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 }
