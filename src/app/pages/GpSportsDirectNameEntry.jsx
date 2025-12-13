@@ -27,9 +27,9 @@ import { useGlobalContext } from "../../context/Store";
 import { v4 as uuid } from "uuid";
 import SCHOOLS from "../../helpers/schools.json";
 import { useNavigate } from "react-router-dom";
+
 export default function GpSportsDirectNameEntry() {
   const { gpLockState, gpStudentState, setGpStudentState } = useGlobalContext();
-
   const navigate = useNavigate();
   const [filteredSchools, setFilteredSchools] = useState([]);
   const [selectedSchool, setSelectedSchool] = useState({
@@ -70,6 +70,25 @@ export default function GpSportsDirectNameEntry() {
   let event1;
   let event2;
 
+  const getFilteredEvents = (group, event1) => {
+    const keySuffix = group.split("-")[1]; // "A", "B", or "C"
+    const groupKey = "group" + keySuffix; // "groupA", "groupB", "groupC"
+    const groupEvents = events[groupKey];
+    if (!groupEvents) return [];
+
+    if (event1 === "YOGA" || event1 === "GYMNASTICS") {
+      return [];
+    }
+
+    let filtered = groupEvents.filter(
+      (el) => el !== event1 && el !== "YOGA" && el !== "GYMNASTICS"
+    );
+
+    // For GROUP-C, if FOOTBALL THROWING is selected, it's the only athletic event allowed.
+    if (group === "GROUP-C" && event1 === "FOOTBALL THROWING") return [];
+
+    return filtered;
+  };
   const getLockData = async (gpName) => {
     const data = gpLockState;
     setLockData(data);
@@ -227,9 +246,10 @@ export default function GpSportsDirectNameEntry() {
       wrap: true,
     },
   ];
-  const submitData = async () => {
-    setLoader(true);
-    const upLoadedResult = {
+
+  const createStudentDataObject = () => {
+    // This helper function builds the student object, centralizing the complex event sorting logic.
+    return {
       id: inputField.id,
       name: inputField.name,
       gurdiansName: inputField.gurdiansName,
@@ -241,8 +261,6 @@ export default function GpSportsDirectNameEntry() {
       gp: inputField.gp,
       event1:
         inputField.event2rank === "" || inputField.event2 === ""
-          ? inputField.event1
-          : inputField.event2rank === ""
           ? inputField.event1
           : inputField.event1rank < inputField.event2rank
           ? inputField.event1
@@ -289,6 +307,11 @@ export default function GpSportsDirectNameEntry() {
       entryBy: inputField.entryBy,
       updatedBy: teacher.id,
     };
+  };
+
+  const submitData = async () => {
+    setLoader(true);
+    const upLoadedResult = createStudentDataObject();
     setGpStudentState([...gpStudentState, upLoadedResult]);
     await setDoc(
       doc(firestore, "gpSportsStudentData", inputField.id),
@@ -332,64 +355,7 @@ export default function GpSportsDirectNameEntry() {
   const updateData = async () => {
     setLoader(true);
 
-    const updatedResult = {
-      id: inputField.id,
-      name: inputField.name,
-      gurdiansName: inputField.gurdiansName,
-      chestNo: inputField.chestNo,
-      birthday: inputField.birthday,
-      studentId: inputField.studentId,
-      sclass: inputField.sclass,
-      school: inputField.school,
-      gp: inputField.gp,
-      event1:
-        inputField.event2rank === "" || inputField.event2 === ""
-          ? inputField.event1
-          : inputField.event1rank < inputField.event2rank
-          ? inputField.event1
-          : inputField.event1rank > inputField.event2rank
-          ? inputField.event2
-          : inputField.event2,
-      event2:
-        inputField.event2 === ""
-          ? ""
-          : inputField.event2rank !== "" && inputField.event2 === ""
-          ? ""
-          : inputField.event1rank < inputField.event2rank
-          ? inputField.event2
-          : inputField.event1rank > inputField.event2rank
-          ? inputField.event1
-          : inputField.event1rank === ""
-          ? inputField.event1
-          : inputField.event2rank === ""
-          ? ""
-          : inputField.event1,
-      event1rank:
-        inputField.event2rank === "" || inputField.event2 === ""
-          ? inputField.event1rank
-          : inputField.event1rank < inputField.event2rank
-          ? inputField.event1rank
-          : inputField.event1rank > inputField.event2rank
-          ? inputField.event2rank
-          : inputField.event2rank,
-      event2rank:
-        inputField.event2rank === "" || inputField.event2 === ""
-          ? ""
-          : inputField.event1rank < inputField.event2rank
-          ? inputField.event2rank
-          : inputField.event1rank > inputField.event2rank
-          ? inputField.event1rank
-          : inputField.event1rank === ""
-          ? inputField.event1rank
-          : inputField.event2rank === ""
-          ? ""
-          : inputField.event1rank,
-      gender: inputField.gender,
-      group: inputField.group,
-      udise: inputField.udise,
-      entryBy: inputField.entryBy,
-      updatedBy: teacher.id,
-    };
+    const updatedResult = createStudentDataObject();
     const newData = gpStudentState.map((item) =>
       item.id === inputField.id ? updatedResult : item
     );
@@ -460,26 +426,6 @@ export default function GpSportsDirectNameEntry() {
   if (details) {
     teacherdetails = decryptObjData("tid");
   }
-
-  const getFilteredEvents = (group, event1) => {
-    const groupKey = group.replace("GROUP-", "group").toLowerCase();
-    const groupEvents = events[groupKey];
-    if (!groupEvents) return [];
-
-    if (event1 === "YOGA" || event1 === "GYMNASTICS") {
-      return [];
-    }
-
-    let filtered = groupEvents.filter(
-      (el) => el !== event1 && el !== "YOGA" && el !== "GYMNASTICS"
-    );
-
-    // For GROUP-C, if FOOTBALL THROWING is selected, it's the only athletic event allowed.
-    if (group === "GROUP-C" && event1 === "FOOTBALL THROWING") return [];
-
-    return filtered;
-  };
-
   useEffect(() => {
     setTeacher(teacherdetails);
     if (teacherdetails.circle !== "admin") {
@@ -837,7 +783,7 @@ export default function GpSportsDirectNameEntry() {
                                 const event1rank =
                                   eventRanks[inputField.gender]?.[
                                     inputField.group
-                                  ]?.[e.target.value] || "";
+                                  ]?.[e.target.value];
                                 setInputField({
                                   ...inputField,
                                   event1: e.target.value,
@@ -884,7 +830,7 @@ export default function GpSportsDirectNameEntry() {
                                 const event2rank =
                                   eventRanks[inputField.gender]?.[
                                     inputField.group
-                                  ]?.[e.target.value] || "";
+                                  ]?.[e.target.value];
                                 setInputField({
                                   ...inputField,
                                   event2: e.target.value,
