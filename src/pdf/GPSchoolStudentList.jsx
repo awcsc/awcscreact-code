@@ -414,7 +414,7 @@ export default function GPSchoolStudentList({
               <View
                 style={{
                   width: "25%",
-                  borderRightWidth: 1,
+                  borderRightWidth: 0,
                   justifyContent: "center",
                   alignItems: "center",
                   height: 30,
