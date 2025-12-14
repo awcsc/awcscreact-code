@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Page,
   Text,
@@ -9,13 +9,8 @@ import {
   Font,
   PDFViewer,
 } from "@react-pdf/renderer";
-import {
-  CIRCLE_SPORTS_DATE,
-  circleBenName,
-  gpNames,
-} from "../modules/constants";
+import { CIRCLE_SPORTS_DATE, circleBenName } from "../modules/constants";
 import { enToBnNumber } from "../modules/calculatefunctions";
-import { useGlobalContext } from "../context/Store";
 const width = 2480;
 const height = 3508;
 export default function CircleEventList({ myData }) {
