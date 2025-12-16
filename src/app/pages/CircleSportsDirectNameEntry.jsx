@@ -25,6 +25,7 @@ import {
 import { useGlobalContext } from "../../context/Store";
 import { v4 as uuid } from "uuid";
 import SCHOOLS from "../../helpers/schools.json";
+import CircleGPList from "../../pdf/CircleGPList";
 import { useNavigate } from "react-router-dom";
 export default function CircleSportsDirectNameEntry() {
   const {
@@ -553,7 +554,8 @@ export default function CircleSportsDirectNameEntry() {
         }
       }
     }
-
+    setSelectedGP(teacherdetails.gp);
+    setFilteredSchools(SCHOOLS.filter((s) => s.gp === teacherdetails.gp));
     // eslint-disable-next-line
   }, []);
   useEffect(() => {
@@ -573,7 +575,9 @@ export default function CircleSportsDirectNameEntry() {
       {loader && <Loader />}
       <DataTable
         columns={columns}
-        data={filteredGPData}
+        data={
+          teacherdetails.circle === "admin" ? filteredGPData : gpConvenorsData
+        }
         pagination
         highlightOnHover
         fixedHeader
@@ -604,51 +608,104 @@ export default function CircleSportsDirectNameEntry() {
       <h3 className="text-primary my-3">
         Circle Sports Students Direct Name Entry Section
       </h3>
-      <div className="my-2">
-        {gpEngNames.map((gpEngName, index) => (
-          <button
-            type="button"
-            className={`btn m-1 ${gpEngName !== selectedGP ? "btn-sm" : ""}`}
+      {teacherdetails.circle === "admin" &&
+        allParticipants.filter((el) => el?.gp === selectedGP).length > 0 && (
+          <div className="my-4">
+            <PDFDownloadLink
+              document={
+                <CircleGPList studentData={filteredGPData} gp={selectedGP} />
+              }
+              fileName={`Circle Sporst ${selectedGP} GP Sports Student List.pdf`}
+              style={{
+                textDecoration: "none",
+                padding: "10px",
+                color: "#fff",
+                backgroundColor: "navy",
+                border: "1px solid #4a4a4a",
+                width: "40%",
+                borderRadius: 10,
+                margin: 20,
+                textAlign: "center",
+              }}
+            >
+              {({ blob, url, loading, error }) =>
+                loading ? "Loading..." : "Download Student List"
+              }
+            </PDFDownloadLink>
+          </div>
+        )}
+      {teacherdetails.circle !== "admin" && gpConvenorsData.length > 0 && (
+        <div className="my-4">
+          <PDFDownloadLink
+            document={
+              <CircleGPList studentData={gpConvenorsData} gp={selectedGP} />
+            }
+            fileName={`Circle Sporst ${selectedGP} GP Sports Student List.pdf`}
             style={{
-              backgroundColor: BUTTONCOLORS[index],
-              color: "white",
+              textDecoration: "none",
+              padding: "10px",
+              color: "#fff",
+              backgroundColor: "navy",
+              border: "1px solid #4a4a4a",
+              width: "40%",
+              borderRadius: 10,
+              margin: 20,
+              textAlign: "center",
             }}
-            onClick={() => {
-              setSelectedGP(gpEngName);
-              setFilteredSchools(SCHOOLS.filter((s) => s.gp === gpEngName));
-              setSelectedSchool({
-                id: "",
-                school: "",
-                udise: "",
-                gp: "",
-                year: 2025,
-                hoi: "",
-              });
-              setInputField({
-                id: docId,
-                name: "",
-                gurdiansName: "",
-                chestNo: "",
-                birthday: birthday,
-                studentId: "",
-                sclass: "",
-                school: "",
-                gp: "",
-                event1: "",
-                event2: "",
-                event1rank: "",
-                event2rank: "",
-                gender: "",
-                group: "",
-                udise: "",
-              });
-            }}
-            key={index}
           >
-            {gpEngName}
-          </button>
-        ))}
-      </div>
+            {({ blob, url, loading, error }) =>
+              loading ? "Loading..." : "Download Student List"
+            }
+          </PDFDownloadLink>
+        </div>
+      )}
+      {teacherdetails.circle === "admin" && (
+        <div className="my-2">
+          {gpEngNames.map((gpEngName, index) => (
+            <button
+              type="button"
+              className={`btn m-1 ${gpEngName !== selectedGP ? "btn-sm" : ""}`}
+              style={{
+                backgroundColor: BUTTONCOLORS[index],
+                color: "white",
+              }}
+              onClick={() => {
+                setSelectedGP(gpEngName);
+                setFilteredSchools(SCHOOLS.filter((s) => s.gp === gpEngName));
+                setSelectedSchool({
+                  id: "",
+                  school: "",
+                  udise: "",
+                  gp: "",
+                  year: 2025,
+                  hoi: "",
+                });
+                setInputField({
+                  id: docId,
+                  name: "",
+                  gurdiansName: "",
+                  chestNo: "",
+                  birthday: birthday,
+                  studentId: "",
+                  sclass: "",
+                  school: "",
+                  gp: "",
+                  event1: "",
+                  event2: "",
+                  event1rank: "",
+                  event2rank: "",
+                  gender: "",
+                  group: "",
+                  udise: "",
+                });
+              }}
+              key={index}
+            >
+              {gpEngName}
+            </button>
+          ))}
+        </div>
+      )}
       {selectedGP && (
         <div>
           <div className="my-2">

@@ -28,6 +28,8 @@ import {
 } from "../../modules/calculatefunctions";
 import { useGlobalContext } from "../../context/Store";
 import { useNavigate } from "react-router-dom";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import CircleGPList from "../../pdf/CircleGPList";
 const CircleStudentsNameEntry = () => {
   const {
     setStateObject,
@@ -473,7 +475,7 @@ const CircleStudentsNameEntry = () => {
     return new Promise((resolve) => setTimeout(resolve, 1000));
   };
   const filterData = (gp) => {
-    setBtnClickedGP(`${gp}`);
+    setBtnClickedGP(gp);
     setFilteredGPData(allParticipants.filter((el) => el?.gp === gp));
     setShowTable(true);
   };
@@ -1123,6 +1125,41 @@ const CircleStudentsNameEntry = () => {
           fixedHeader
         />
       )}
+      {selectGPsParticipants.length === 0 && btnClickedGP !== "" && (
+        <div className="my-4">
+          <PDFDownloadLink
+            document={
+              <CircleGPList studentData={filteredGPData} gp={btnClickedGP} />
+            }
+            fileName={`Circle Sporst ${btnClickedGP} GP Sports Student List.pdf`}
+            style={{
+              textDecoration: "none",
+              padding: "10px",
+              color: "#fff",
+              backgroundColor: "navy",
+              border: "1px solid #4a4a4a",
+              width: "40%",
+              borderRadius: 10,
+              margin: 20,
+              textAlign: "center",
+            }}
+          >
+            {({ blob, url, loading, error }) =>
+              loading ? "Loading..." : "Download Student List"
+            }
+          </PDFDownloadLink>
+          <button
+            type="button"
+            className="btn btn-success m-4 btn-sm"
+            onClick={() => {
+              setStateArray(filteredGPData);
+              navigate(`/CircleGPWiseStudentList`);
+            }}
+          >
+            Print List
+          </button>
+        </div>
+      )}
       {allParticipants.length > 0 && (
         <>
           <button
@@ -1176,16 +1213,42 @@ const CircleStudentsNameEntry = () => {
                 Displaying {selectedGP} GP's Participants
               </h4>
               {selectGPsParticipants.length > 0 && (
-                <button
-                  type="button"
-                  className="btn btn-success m-1 btn-sm"
-                  onClick={() => {
-                    setStateArray(selectGPsParticipants);
-                    navigate(`/CircleGPWiseStudentList`);
-                  }}
-                >
-                  Print List
-                </button>
+                <div className="my-4">
+                  <PDFDownloadLink
+                    document={
+                      <CircleGPList
+                        studentData={selectGPsParticipants}
+                        gp={selectedGP}
+                      />
+                    }
+                    fileName={`Circle Sporst ${selectedGP} GP Sports Student List.pdf`}
+                    style={{
+                      textDecoration: "none",
+                      padding: "10px",
+                      color: "#fff",
+                      backgroundColor: "navy",
+                      border: "1px solid #4a4a4a",
+                      width: "40%",
+                      borderRadius: 10,
+                      margin: 20,
+                      textAlign: "center",
+                    }}
+                  >
+                    {({ blob, url, loading, error }) =>
+                      loading ? "Loading..." : "Download Student List"
+                    }
+                  </PDFDownloadLink>
+                  <button
+                    type="button"
+                    className="btn btn-success m-4 btn-sm"
+                    onClick={() => {
+                      setStateArray(selectGPsParticipants);
+                      navigate(`/CircleGPWiseStudentList`);
+                    }}
+                  >
+                    Print List
+                  </button>
+                </div>
               )}
               <div className="container-fluid my-4">
                 <DataTable
